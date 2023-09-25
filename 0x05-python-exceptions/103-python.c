@@ -1,150 +1,48 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "/usr/include/python3.4/Python.h"
+/*
+ * File: 103-python.c
+ * Auth: Type Your Name Here
+ */
+
+#include <Python.h>
 
 void print_python_list(PyObject *p);
 void print_python_bytes(PyObject *p);
 void print_python_float(PyObject *p);
-void print_hexn(const char *str, int n);
 
 /**
- * print_python_bytes - Print information about a Python list object
- * @p: Python object to be processed.
- * 
- * Return: Nothing.
-*/
-
+ * print_python_list - Prints basic info about Python lists.
+ * @p: A PyObject list object.
+ */
 void print_python_list(PyObject *p)
 {
-    int l, list_len;
-    PyObject *item;
-    PyListObject *py_copy = (PyListObject *)p;
+        Py_ssize_t size, alloc, i;
+        const char *type;
+        PyListObject *list = (PyListObject *)p;
+        PyVarObject *var = (PyVarObject *)p;
 
-    printf("[*] Python list info\n");
+        size = var->ob_size;
+        alloc = list->allocated;
 
-    /* Check if the provided object is a valid list object */
-    if (!PyList_Check(p))
-    {
-        printf("  [ERROR] Invalid List Object\n");
-        return;
-    }
+        fflush(stdout);
 
-    /* Get the length of the list */
-    list_len = PyList_GET_SIZE(p);
+        printf("[*] Python list info\n");
+        if (strcmp(p->ob_type->tp_name, "list") != 0)
+        {
+                printf("  [ERROR] Invalid List Object\n");
+                return;
+        }
 
-    printf("[*] Size of the Python List = %d\n", list_len);
-    printf("[*] Allocated = %d\n", (int)py_copy->allocated);
+        printf("[*] Size of the Python List = %ld\n", size);
+        printf("[*] Allocated = %ld\n", alloc);
 
-    /* Iterate over each element in the list */
-    for (l = 0; l < list_len; l++)
-    {
-        item = PyList_GET_ITEM(p, l);
-
-        /* Print the type name of the element */
-        printf("Element %d: %s\n", l, item->ob_type->tp_name);
-
-        /* Check if the element is a bytes object and print its information */
-        if (PyBytes_Check(item))
-            print_python_bytes(item);
-
-        /* Check if the element is a float object and print its information */
-        else if (PyFloat_Check(item))
-            print_python_float(item);
-    }
-
-    fflush(stdout);
+        for (i = 0; i < size; i++)
+        {
+                type = list->ob_item[i]->ob_type->tp_name;
+                printf("Element %ld: %s\n", i, type);
+                if (strcmp(type, "bytes") == 0)
+                        print_python_bytes(list->ob_item[i]);
+                else if (strcmp(type, "float") == 0)
+                        print_python_float(list->ob_item[i]);
+        }
 }
 
-/**
- * print_python_bytes - Print information about a Python bytes object
- * @p: Python object to be processed.
- * 
- * Return: Nothing.
-*/
-
-void print_python_bytes(PyObject *p)
-{
-    PyBytesObject *py_copy = (PyBytesObject *)p;
-    int n_bytes, py_copy_size = 0;
-
-    printf("[.] bytes object info\n");
-
-    /* Check if the provided object is a valid bytes object */
-    if (!PyBytes_Check(p))
-    {
-        printf("  [ERROR] Invalid Bytes Object\n");
-        return;
-    }
-
-    /* Get the size of the bytes object */
-    py_copy_size = PyBytes_Size(p);
-    n_bytes = py_copy_size + 1;
-
-    /* Limit the number of bytes to print to a maximum of 10 */
-    if (n_bytes >= 10)
-        n_bytes = 10;
-
-    /* Print information about the bytes object */
-    printf("  size: %d\n", py_copy_size);
-    printf("  trying string: %s\n", py_copy->ob_sval);
-    printf("  first %d bytes: ", n_bytes);
-
-    /* Print the hexadecimal representation of the bytes */
-    print_hexn(py_copy->ob_sval, n_bytes);
-    printf("\n");
-
-    fflush(stdout);
-}
-
-/**
- * print_python_bytes - Print information about a Python float object
- * @p: Python object to be processed.
- * 
- * Return: Nothing.
-*/
-
-void print_python_float(PyObject *p)
-{
-    PyFloatObject *py_copy = (PyFloatObject *)p;
-    char *num_str = NULL;
-
-    printf("[.] float object info\n");
-
-    /* Check if the provided object is a valid float object */
-    if (!PyFloat_Check(p))
-    {
-        printf("  [ERROR] Invalid Float Object\n");
-        return;
-    }
-
-    /* Store the number as a string and print */
-	num_str = PyOS_double_to_string(py_copy->ob_fval, 'r', 0,
-			Py_DTSF_ADD_DOT_0, NULL);
-	printf("  value: %s\n", num_str);
-	PyMem_Free(num_str);
-
-    fflush(stdout);
-}
-
-/**
- * print_hexn - Prints n chars of a string in hex format
- * @str: String to be printed.
- * @n: Number of characters to print.
- * 
- * Return: Nothing.
-*/
-
-void print_hexn(const char *str, int n)
-{
-	int c = 0;
-
-	while (c < (n - 1))
-    {
-		printf("%02x ", (unsigned char) str[c]);
-        c++;
-    }
-
-    /* Print the last character without a space */
-	printf("%02x", str[c]);
-    fflush(stdout);
-}
