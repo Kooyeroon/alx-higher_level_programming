@@ -1,4 +1,4 @@
 #!/usr/bin/python3
-def magic_string():
-    magic_string.counter = getattr(magic_string, 'counter', 0) + 1
-    return ("Holberton, " * (magic_string.counter - 1) + "Holberton")
+def magic_string(i=[0]):
+    i[0] += 1
+    return str("BestSchool, " * (i[0] - 1)) + "BestSchool"
