@@ -1,22 +1,15 @@
 #!/usr/bin/python3
-"""Square Module"""
-Rectangle = __import__('9-rectangle').Rectangle
+"""Advanced Task 12"""
 
 
-class Square(Rectangle):
-    """Defines a Square class."""
+class MyInt(int):
+    """MyInt is a rebel that has == and != operators inverted"""
+    def __init__(self, value):
+        self.value = value
 
-    def __init__(self, size: int):
-        super().integer_validator("size", size)
-        self.__size = size
+    def __eq__(self, other):
+        """when obj is compared as == it should be interpreted as !="""
+        return self.value != other
 
-    def area(self) -> int:
-        """Computes the area of the rectangle.
-
-        Returns:
-            int: The area.
-        """
-        return self.__size * self.__size
-
-    def __str__(self):
-        return f"[Rectangle] {self.__size}/{self.__size}"
+    def __ne__(self, other):
+        return self.value == other
